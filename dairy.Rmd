@@ -1,0 +1,172 @@
+---
+title: "Learning Diary"
+author: "Xinyuan Zhang"
+date: "17/06/2021"
+output: pdf_document
+---
+
+## General notes
+
+this is some notes for everyday work and remember some questions. Should update daily. May add sections. May want to add to overleaf, but that's maybe for future. Each note/question starts with a dot point now, but maybe change format later. 
+
+## Notes to self
+
+### 16/07
+
+* in codes, I guess it's from Menzel's notation, $\beta$ denotes for model reated to f, while $\Gamma$ denotes for model related to g, and when cts case, the spline smoothing function. Or maybe I'm wrong? *need confirm*
+
+* readed the **rpm.loglik.cts.R**, that's initial def of loglikfun_cts, eqfun_cts, gloglikfun_cts and jeqfun_cts. Straightforward, but need to understand loglik & eqcond defined in Rcpp, which may need change too for cts var
+
+* Now read **loglik.cpp**
+
+### 17/07
+
+* mostly confirmed: loglik.cpp defines loglik as a function
+
+* Rcpp gallery: good reference https://gallery.rcpp.org/
+
+* **loglik.cpp** : it's defining W as U+V+Geo, which is about S; I may want to start w/ sth simpler though
+
+* I basically understand **loglik** defined in **loglik.cpp**, that basically expresses (12) and return pseudo liglik value; tech details qeustioning though
+
+* Now read **eqcond.cpp**. But since we have **eqcondR.R**, start with this first
+
+* **eqcondR.R** : output is constraint from (8'), should be 0 if met, because the eqM and eqW are RHS - LHS = 0. 
+
+* some details about **eqcondR.R** : 
+
+  * what are the counts doing? I assume it will be clear once I can work with data. 
+  
+  * What's the meaning of S, W, M, nXu, nZu? I need to know more clearly. Now I just have general idea 
+
+  * Once I know the things above I'll get what beta contains. 
+
+* Now, read **eqcond.cpp **, which half of it is same as **eqcondR.R**, but contains how to use the constraint calculated
+
+* some details about **eqcond.cpp** : 
+
+  * pfp = pfps - exp(-GammaW) is actually the constraint from (8'), again, this is RHS - LHS should be 0
+  
+  * If constraints==0 that's constraint satisfied: pfp[more index] = pmf_something_with_index_woman - f(*,z)
+
+* Now, start to read **rpm_cts.R**
+
+### 18/07
+
+* I may have to know more about control.
+
+* some details about **rpm_cts.R** : 
+
+  * line 270&271, gw and gm are log(no. of women or men / total)
+  
+* The working pattern according to  **rpm_cts.R**:
+
+  * data cleaning, weighting, get proportion of men & women, etc
+  
+  * create model matrix; codes seems like working on **distance** for S
+  
+  * need confirm: is alpha is the spline function alpha? 
+  
+  * set initial theta. now quite understand the code
+  
+  * Proper algorithm begins
+  
+  * insert value from initial theta to containers called beta! lower bound & upper bound
+  
+  * use eqfun_cts (should use functions defined in Rcpp as eqcond) to calculate a test_eqcond
+  
+  * call **nloptr::nloptr** to calculate a out / out.text. Put a some other values in; like hessian, etc
+  
+  * out$solution is th_hat. Use this value into eqfun_cts instead of initial theta
+  
+  * use a rpm.hessian_cts function somewhere in the process
+  
+  * Put a whole bunch of other things into the **out** stuff
+  
+  * then do bootstrap
+
+* **rpm.loglik.cts.R** use **numDeriv::grad** for gloglikfun_cts and **nloptr::nl.jacobian** (same as **nl.grad** as the guide suggests) for jeqfun_cts
+
+* I think now it's a good time to temporarily stop reading through codes and start reading or working on some math, with checking **nloptr** and **cubature** in mind. 
+
+* Also, may want to read through **control.rpm.R** later
+
+* What's needed: numerical quadrature & cubature package; spline smooth model & spline2 package.
+
+* Now, read something about spline smooth
+
+### 19/07
+
+* Reexpress of g: $g(x,*)=\sum_{k=1}^{K}{\alpha^W_k b_k(x)}$
+
+* vedio : intro to smoothing splines https://www.youtube.com/watch?v=queK1reC-ac
+
+  * a smoothing spline is a spline designed to balance fit with smoothness
+  
+* intro of Bernstein Polynomials https://www.youtube.com/watch?v=AL0vcsLlYp4
+
+  * Definition of *Berndtein basis Poly*: $b_{i,n}(x)= \binom{n}{i}x^i(1-x)^{n-i}$
+  
+  * Linear combination of Bernstein basis poly of degree n: $B_k(x)=\sum^K_{k=0}\alpha_kb_{k,n}(x)$
+
+*So this is question part: need to confirm if the reexpression of g is just the linear combinatino of B poly
+
+* And yes, now the question is about estimating $\alpha_k$
+
+* article of package **splines2**: https://wwenjie.org/splines2/articles/splines2-intro
+
+  * here at last, generalized Bernstein poly basis of degree n over [a,b] is : $B_i^n(x)=\frac{1}{(b-a)^n}\binom{n}{i}(x-a)^i(b-x)^{n-i}$, i from 0 to n, which reduce to normal when a=0 and b=1. 
+
+* Now, leave the math details first, and check **cubature** package and **numerical quadrature**
+
+* Honestly not quite understand these two. Assumption for now: **cubature** is for integration instead of summation when calculating eqcond. need confirm. If that's the case then it's much clearer. 
+
+* Summation now used for eqcond and loglik, but integration is most likely for eqcond since (12) involves summation? need confirm
+
+### 20/07
+
+* delete after starting: may want to look into **nloptr** and **cubature**. 
+
+* Rcpp reference guide: https://dirk.eddelbuettel.com/code/rcpp/Rcpp-quickref.pdf
+
+* 
+
+
+
+
+
+\
+
+## Questions along reading the codes
+
+### rpm.loglik.R
+
+* why dim(something)[3] ? if it's matrix, what's the 3 dimension? *A*: It's just 3-D. 
+
+* just to confirm: the loglik, eqcond, qloglik, are defined in C++ right? 
+*A*: Should be yes, see Rcpp exports in which, eg. loglik is .Call('_rpm_loglik')
+
+* syntax questions; for numvector & intvector, when to use [] and ()? 
+
+* in *loglik.cpp*, the llik part, what's gm and gw (both is double)? Still not sure. Is GammaM(k)+gm representing $g(*,z)$? *A*: I think yes based on **eqcondR.R**. 
+
+* in **eqcondR.R**, I see dim(something)[3] again. Does that mean the Sd and Xd we have are cubes instead of 2-d matrix? 
+
+* Need confirm: I assume Ustar & Vstar are doing (3)
+
+* in **eqcond.cpp**, what's pfp at last is doing? What's pmf? Is pfp before the constraint that should be zero ? 
+
+* What's all the wieighting doing? I think it's mentioned in the paper. need check
+
+* Questioning beta again, since there seem to be a theta?? *A*: should still be the theta? since line 378 kinda insert values of theta to name of beta
+
+* then what's alpha? 
+
+* What's **nloptr** doing exactly? 
+
+* What's **gloglik.cpp** last part about partial g(x,*) doing? what's the gf it creates?
+
+* Is the reexpression of g just the linear combination of Bernstein basis poly? 
+
+
+
