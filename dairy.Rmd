@@ -129,7 +129,8 @@ this is some notes for everyday work and remember some questions. Should update 
 
 * Rcpp reference guide: https://dirk.eddelbuettel.com/code/rcpp/Rcpp-quickref.pdf
 
-* 
+* github & R studio intro bookdown https://happygitwithr.com/rstudio-git-github.html , video https://www.youtube.com/watch?v=QLFc9gw_Hfs&t=786s , https://www.youtube.com/watch?v=megZYkCLMA4
+
 
 
 
