@@ -133,16 +133,76 @@ this is some notes for everyday work and remember some questions. Should update 
 
 
 
+### 22/07
+
+* Read through some comments in overleaf doc. Help to understand Gamma_W maybe? $\frac{\exp{\lbrace W(x,z) \rbrace} w(x) m(z)}{(1+ \Gamma_w(x))(1+ \Gamma_m(z))}$
+
+$$
+f(x,z) = \frac{\exp{\lbrace W(x,z) \rbrace} w(x) m(z)}{(1+ %\Gamma_w(x))(1+ \Gamma_m(z))} = 
+         2e^{W(x,z|\beta)} f(x,*) f(*,z)~~~~~~~~\forall x, z  %\label{eq:fxz}
+$$
+$$
+2\frac{N_m}{N}e^{-g(x,*)}+\frac{N_w-N_m}{N} = \int{\frac{e^{W(x,s)+g(*,s)}m(s)}{1+e^{g(*,s)}}ds}~~~\forall~x \\
+2\frac{N_w}{N}e^{-g(*,z)}-\frac{N_w-N_m}{N} = \int{\frac{e^{W(x,s)+g(s,*)}w(s)}{1+e^{g(s,*)}}ds}~~~\forall~z
+$$
+
+$$
+e^{-g(x,*)} = \int{\frac{e^{W(x,s)+g(*,s)}m(s)}{1+e^{g(*,s)}}ds}~~~\forall~x\\
+e^{- \sum_{k=1}^{K}{\alpha^W_k b_k(x)}} = \int{\frac{e^{W(x,s)+ \sum_{k=1}^{K}{\alpha^W_k b_k(s)}}m(s)}{1+e^{ \sum_{k=1}^{K}{\alpha^W_k b_k(s)}}}ds}~~~\forall~x
+$$
+* check about how the re expression of $g(*,z)$ different from g(x,*).
+
+### 23/07
+
+* Tomorrow should check the recordings
+
+### 25/07
+
+* sorry for not being very productive this week
+
+* should do better today. I still have couple of hours! Don't waste it!
+
+* first thing: try to do a simple g function based on **splines2** package
+
+```{r}
+library(splines2)
+x1 <- seq.int(0, 1, 0.1)
+x2 <- seq.int(- 1, 1, 0.01)
+bpMat1 <- bernsteinPoly(x1, degree = 4, intercept = TRUE)
+bpMat2 <- bernsteinPoly(x1, degree = 4, intercept = T)
+dim(bpMat1)
+length(x1)
+```
+```{r}
+x1 <- seq.int(0, 1, 0.1)
+x2 <- seq.int(- 1, 1, 0.01)
+bpMat1 <- bernsteinPoly(x1, degree = 4, intercept = F)
+bpMat1
+```
+
+* Coding questions: 
+
+  * What's K? Is it unique x n z respectively? 
+
+* Tomorrow: do integration with **cubature**
+
+### 31/07
+
+* fix part of loglik.R.cts and eqcond.R.cts
+
+* tomorrow: listen to recording of last meeting, fix loglik.R.cts the left part of counts; should I add indicators?
+
+* probably have to get t know nloptr for estimating
+
+* try to get gradient and Jacobin to work by tomorrow
+
+
 
 
 
 \
 
 ## Questions along reading the codes
-
-### rpm.loglik.R
-
-* why dim(something)[3] ? if it's matrix, what's the 3 dimension? *A*: It's just 3-D. 
 
 * just to confirm: the loglik, eqcond, qloglik, are defined in C++ right? 
 *A*: Should be yes, see Rcpp exports in which, eg. loglik is .Call('_rpm_loglik')
@@ -159,11 +219,8 @@ this is some notes for everyday work and remember some questions. Should update 
 
 * What's all the wieighting doing? I think it's mentioned in the paper. need check
 
-* Questioning beta again, since there seem to be a theta?? *A*: should still be the theta? since line 378 kinda insert values of theta to name of beta
 
-* then what's alpha? 
-
-* What's **nloptr** doing exactly? 
+* What's **nloptr** doing exactly? Optimization
 
 * What's **gloglik.cpp** last part about partial g(x,*) doing? what's the gf it creates?
 
