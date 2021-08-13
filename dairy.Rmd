@@ -196,7 +196,64 @@ bpMat1
 
 * try to get gradient and Jacobin to work by tomorrow
 
+### 01/08
 
+* fixed many errors in eqcond function; remember to update tomorrow to github
+
+* big problem: cannot do matching inside function for cubature! sol: find closest value from X
+
+* return lots of NA
+
+* solved by changing matching methods; but still does not seem satisfying
+
+* tomorrow: maybe talk to Mark about the problem with basis matrix; the values returned are just too small to be used; results will be too heavily based on alpha, constraint closer to 0 when smaller parameters assumed, which should not be the case?
+
+* tomorrow: fix matching for loglik, try to run it till it works
+
+### 02/08
+
+* Now we confirmed: eqcond, eqcond.5p, loglik all works fine
+
+* loglikfun_cts, eqfun_cts works; gradient and jacobian take too long;
+
+* wrote gloglik.cts mathematically; need check and run
+
+* not sure how to write jacobian though
+
+### 03/08
+
+* after a night nl.jacobian doesn't work
+
+* gloglik_fun works with written gradient; need check math
+
+* do we need match for cubature integration? or should we put it to poly?
+
+
+### 11/08
+
+* change **splines2** into **prama::bernsteinb** so don't have to match in function for eqcond when doing integration; 
+
+* checked manually, not sure why splines2 gives the wrong number result
+
+* problem with **splines2**: gives wrong value (make not be a big deal since values are really small), and changes with diff length of X
+
+* but **prama** cannot give a matrix, better one input at a time; leave it like this for now, fix later
+
+* new **eqcond.R** function works fine!
+
+* tomorrow: listen to rest of recordings; should start fix **loglik**; try to finish by Saturday
+
+### 12/08
+
+* **eqcond.jacobian** works! result in a 10*202 matrix
+
+### 13/08
+
+* fix **loglik.R** with separated data for paired and single
+
+* now numeric gradient works!
+
+* tomorrow should try to do optimization with 200
 
 
 
@@ -204,27 +261,20 @@ bpMat1
 
 ## Questions along reading the codes
 
-* just to confirm: the loglik, eqcond, qloglik, are defined in C++ right? 
-*A*: Should be yes, see Rcpp exports in which, eg. loglik is .Call('_rpm_loglik')
 
 * syntax questions; for numvector & intvector, when to use [] and ()? 
 
 * in *loglik.cpp*, the llik part, what's gm and gw (both is double)? Still not sure. Is GammaM(k)+gm representing $g(*,z)$? *A*: I think yes based on **eqcondR.R**. 
 
-* in **eqcondR.R**, I see dim(something)[3] again. Does that mean the Sd and Xd we have are cubes instead of 2-d matrix? 
-
-* Need confirm: I assume Ustar & Vstar are doing (3)
 
 * in **eqcond.cpp**, what's pfp at last is doing? What's pmf? Is pfp before the constraint that should be zero ? 
 
 * What's all the wieighting doing? I think it's mentioned in the paper. need check
 
 
-* What's **nloptr** doing exactly? Optimization
 
 * What's **gloglik.cpp** last part about partial g(x,*) doing? what's the gf it creates?
 
-* Is the reexpression of g just the linear combination of Bernstein basis poly? 
 
 
 
